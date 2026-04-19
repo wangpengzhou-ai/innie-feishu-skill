@@ -1,0 +1,19 @@
+# Generated outputs — never commit these
+messages_raw.json
+messages_organized.json
+analysis_stats.json
+truths.json
+/heatmap.html
+heatmap.png
+/share-card.html
+share-card.png
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Node (puppeteer screenshot helper)
+node_modules/
+package-lock.json

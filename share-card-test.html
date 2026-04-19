@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Share — innie@feishu.skill</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Allison&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #2a4a76;
+    --bg-deep: #1f3a60;
+    --bg-deeper: #152a47;
+    --ink: #e8e4d3;
+    --ink-soft: #cfcaba;
+    --ink-mute: #9aa6b8;
+    --rule: rgba(232, 228, 211, 0.18);
+    --rule-soft: rgba(232, 228, 211, 0.10);
+    --accent: #d7cfa9;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 48px 24px 72px;
+    font-family: "IBM Plex Sans", "Noto Sans SC", system-ui, sans-serif;
+    color: var(--ink);
+    background-color: #1f3a60;
+    background-image:
+      radial-gradient(1400px 900px at 50% -10%, rgba(90, 130, 180, 0.35) 0%, transparent 55%),
+      radial-gradient(900px 700px at 50% 110%, rgba(8, 18, 36, 0.6) 0%, transparent 60%),
+      radial-gradient(60% 100% at 0% 50%, rgba(8, 18, 36, 0.35) 0%, transparent 55%),
+      radial-gradient(60% 100% at 100% 50%, rgba(8, 18, 36, 0.35) 0%, transparent 55%),
+      radial-gradient(circle at center, rgba(232, 228, 211, 0.11) 1px, transparent 1.5px),
+      linear-gradient(180deg, #355a8a 0%, #2a4a76 45%, #1f3a60 100%);
+    background-size: auto, auto, auto, auto, 48px 48px, auto;
+    background-position: center top, center bottom, left center, right center, center center, center center;
+    background-attachment: fixed;
+    position: relative;
+  }
+
+  .card {
+    width: min(760px, 100%);
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(to right, rgba(232, 228, 211, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(232, 228, 211, 0.035) 1px, transparent 1px),
+      linear-gradient(to right, rgba(232, 228, 211, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(232, 228, 211, 0.05) 1px, transparent 1px);
+    background-size: 32px 32px, 32px 32px, 160px 160px, 160px 160px;
+    color: var(--ink);
+    position: relative;
+    z-index: 3;
+    border: 1px solid var(--rule);
+    padding: 56px 64px 44px;
+    box-shadow: 0 40px 80px -30px rgba(0,0,0,0.55), 0 10px 30px -10px rgba(0,0,0,0.35);
+    overflow: hidden;
+  }
+
+  /* subtle grain overlay */
+  .grain {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* HEADER */
+  .head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 45px;
+  }
+  .head .handle { display: flex; align-items: center; gap: 10px; }
+  .head .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block; }
+  .head .date { font-variant-numeric: tabular-nums; text-align: right; }
+
+  /* WATERMARK */
+  .watermark {
+    position: absolute;
+    top: 38px;
+    left: 52px;
+    right: 52px;
+    font-family: "Newsreader", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 86px;
+    line-height: 1.06;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    opacity: 0.06;
+    pointer-events: none;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  /* MARK */
+  .mark {
+    font-family: "Allison", cursive;
+    font-weight: 400;
+    color: var(--ink);
+    font-size: 64px;
+    line-height: 1;
+    margin: 0;
+  }
+
+  /* SECTIONS */
+  #sc-sections { margin-top: 45px; }
+  .sec + .sec { margin-top: 60px; }
+  .sec-head { display: flex; gap: 22px; align-items: baseline; margin-bottom: 16px; }
+  .sec-num {
+    font-family: "Newsreader", serif;
+    font-weight: 400; font-size: 28px;
+    color: var(--accent); letter-spacing: 0.02em;
+    line-height: 1; flex-shrink: 0; min-width: 36px;
+  }
+  .sec-title {
+    font-family: "Noto Serif SC", "Newsreader", serif;
+    font-weight: 400; font-size: 19.5px; line-height: 1.55;
+    color: var(--ink); letter-spacing: 0.005em;
+    text-wrap: pretty; margin: 0;
+  }
+  .sec-title em {
+    font-style: normal; font-weight: 400;
+    color: var(--accent);
+  }
+  .sec-body {
+    font-family: "Noto Sans SC", "IBM Plex Sans", sans-serif;
+    font-weight: 300; font-size: 14.5px; line-height: 1.95;
+    letter-spacing: 0.015em; color: var(--ink-soft);
+    text-wrap: pretty; padding-left: 58px;
+  }
+  .sec-body p { margin: 0 0 8px; }
+  .sec-body p:last-child { margin-bottom: 0; }
+  .sec-body .pull { color: var(--ink); font-weight: 400; }
+  .sec-body .tag { font-family: "Noto Serif SC", "Newsreader", serif; font-style: normal; color: var(--accent); }
+  .sec-body .question {
+    margin-top: 14px;
+    padding-left: 12px;
+    border-left: 2px solid rgba(215, 207, 169, 0.22);
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--ink-mute);
+    line-height: 1.75;
+  }
+
+  /* FOOTER */
+  .foot {
+    margin-top: 64px; padding-top: 28px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 16px;
+  }
+  .foot .logo { width: 40px; height: 40px; opacity: 0.5; display: block; }
+  .foot .logo path { fill: var(--ink); }
+  .foot .qr-box { width: 40px; height: 40px; background: var(--bg); display: block; }
+  .foot .qr-box img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+
+  @media (max-width: 640px) {
+    body { padding: 24px 12px 48px; }
+    .card { padding: 40px 26px 32px; }
+    .sec-body { padding-left: 0; }
+    .sec-head { gap: 14px; }
+    .foot .logo, .foot .qr-box { width: 36px; height: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<article class="card">
+  <div class="grain"></div>
+
+  <header class="head">
+    <div class="handle">
+      <span class="dot"></span>
+      <span>innie@feishu.skill</span>
+    </div>
+    <div class="date" id="sc-date"></div>
+  </header>
+
+  <div class="mark">hidden truths about your inne</div>
+
+  <div id="sc-sections"></div>
+
+  <footer class="foot">
+    <svg class="logo" viewBox="207 210 210 160" xmlns="http://www.w3.org/2000/svg" aria-label="Feishu">
+      <g>
+        <path d="M 245.9118,214.7869 C 245.9078,214.7839 245.9058,214.7799 245.9028,214.7769 L 245.8998,214.7749 Z"/>
+        <path d="M 309.3151,285.4268 L 327.8971,267.8878 C 335.6651,260.6048 345.0351,255.1218 355.2751,251.7958 C 350.5661,237.4388 344.2121,225.3118 334.1361,213.2968 C 333.5011,212.5398 332.6951,211.9288 331.7791,211.5138 C 330.8631,211.0988 329.8611,210.8788 328.8481,210.8908 L 247.3651,210.8908 C 246.8891,210.8908 246.4251,211.0258 246.0461,211.2938 C 245.6671,211.5628 245.3621,211.9288 245.2031,212.3448 C 245.0451,212.7718 245.0201,213.2358 245.1551,213.6758 C 245.2761,214.1108 245.5421,214.4968 245.9021,214.7768 C 271.1281,234.6778 292.5721,258.5838 309.3151,285.4268"/>
+        <path d="M 211.7658,263.8818 C 211.4358,263.5888 211.0328,263.3808 210.5808,263.3078 C 210.1418,263.2348 209.6778,263.2828 209.2618,263.4418 C 208.8468,263.6128 208.4928,263.8938 208.2368,264.2478 C 207.9798,264.6018 207.8458,265.0298 207.8458,265.4568 L 207.8458,341.6268 C 207.8458,342.6778 208.1138,343.7158 208.6268,344.6558 C 209.1398,345.5838 209.8968,346.3778 210.8128,346.9638 C 231.6728,360.1908 249.5878,367.3958 274.6118,367.7378 C 299.6358,368.0798 324.2438,361.5338 345.4818,348.8818 C 353.2978,344.2288 354.8488,342.2498 361.3948,336.1928 C 349.3658,339.2948 338.3498,338.4158 326.6988,335.4108 C 277.5058,322.6978 247.5728,297.0028 211.7418,263.8818 Z"/>
+        <path d="M 402.1245,278.3294 C 405.0675,272.1864 408.8415,266.4464 413.3475,261.2434 C 400.5005,256.7374 386.5655,255.8094 373.1805,258.5574 C 363.1175,260.6234 353.6705,264.7124 345.4485,270.5064 C 343.5665,271.9474 341.7525,273.4764 340.0215,275.0994 L 319.7845,294.1994 C 316.0035,297.7744 312.0425,300.9594 307.9005,303.9354 C 304.3055,306.6394 300.5695,309.1594 296.6805,311.5954 C 309.0795,316.6214 321.7195,321.1024 334.7205,324.4624 C 350.2025,328.4604 365.1485,325.9954 376.6575,318.0714 C 381.5235,314.2504 385.6865,309.3864 388.8865,303.5484 Z"/>
+      </g>
+    </svg>
+    <div class="qr-box">
+      <img alt="QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&ecc=M&color=b8b4a4&bgcolor=2a4a76&data=https%3A%2F%2Fgithub.com%2FYOUR_USERNAME%2Finnie-feishu-skill">
+    </div>
+  </footer>
+</article>
+
+<script>
+const CARD_DATA = {
+  “truths”: [
+    {
+      “num”: “01”,
+      “title”: “You present as the person who resolves ambiguity, but you've quietly become the one who absorbs it”,
+      “body”: “Across conversations and groups, a recurring pattern appears: when a situation is unclear — scope undefined, ownership contested, expectations misaligned — you are the one who steps in to name it, frame it, and produce a next action. Others leave threads open; you close them.\n\nThis looks like leadership, and in many ways it is. But it also means you've taken on a role that no one formally assigned you. The loop you run — notice gap, fill gap, move on — happens so automatically that it no longer registers as a choice. The cost it hides is real: you're carrying the cognitive load of holding the whole picture while others hold only their slice. You've made yourself indispensable in exactly the way that keeps you from being given more.\n\nYou're not solving ambiguity. You're becoming its designated container.”
+    },
+    {
+      “num”: “02”,
+      “title”: “You know how to speak to power, but you keep choosing not to use that skill on your own behalf”,
+      “body”: “The messages show clear situational awareness: you modulate tone, choose framing, and time your arguments differently depending on who you're talking to. You know what will land with a skeptic, what will reassure a stakeholder, what framing makes a blocker feel solvable. This is a real skill, and it shows up consistently.\n\nWhat's striking is where it doesn't show up — in conversations about your own scope, recognition, or direction. When the subject turns to what you need or what you think the path should be, the same precision disappears. You become vaguer, more deferential, quicker to qualify. It's as if the skill was built for outward use and a wall was quietly erected against turning it inward.\n\nYou are more articulate about other people's problems than about your own position. That asymmetry is not an accident.”
+    },
+    {
+      “num”: “03”,
+      “title”: “Your most consistent source of calm is making things trackable, not making things clear”,
+      “body”: “When things get messy — competing priorities, unclear outcomes, shifting requirements — your instinct is to structure: lists, owners, timelines, follow-ups. The record shows this reliably. Disorder gets converted into process, and process produces a feeling of control.\n\nThe pattern that sits beneath this is worth looking at. Structuring a problem is not the same as understanding it. A well-organized situation with the wrong direction is still going the wrong way. The record suggests you reach for the former when the latter feels too uncomfortable or unresolvable. The questions that stay unanswered longest — is this the right goal, does this approach actually make sense — tend to be the ones that can't be turned into a checklist.\n\nYou're very good at making sure everything secondary stays under control. The primary question gets managed by being kept in the background.”
+    }
+  ],
+  “stats”: {
+    “messages”: 1024,
+    “days”: 42,
+    “groups”: 18,
+    “truths”: 3
+  },
+  “author_initial”: “A”,
+  “author_name”: “Anonymous”,
+  “author_subtitle”: “”,
+  “generated_by”: “innie@feishu.skill”
+};
+
+(function () {
+  var d = CARD_DATA;
+  var ROMAN = ["I", "II", "III"];
+
+  // Date: year / month
+  var now = new Date();
+  document.getElementById("sc-date").textContent =
+    now.getFullYear() + "\u00a0/\u00a0" + String(now.getMonth() + 1).padStart(2, "0");
+
+  // Render truth sections
+  var container = document.getElementById("sc-sections");
+  d.truths.forEach(function (t, i) {
+    var paras = (t.body || "").split(/\n\n+/).map(function (p) { return p.trim(); }).filter(Boolean);
+    var lastPara = paras.length > 1 ? paras.pop() : null;
+
+    var bodyHtml = paras.map(function (p) { return "<p>" + p + "</p>"; }).join("");
+    if (lastPara) bodyHtml += '<p class="pull">' + lastPara + "</p>";
+
+    var sec = document.createElement("section");
+    sec.className = "sec";
+    sec.innerHTML =
+      '<div class="sec-head">' +
+        '<div class="sec-num">' + (ROMAN[i] || t.num) + ".</div>" +
+        '<h2 class="sec-title">' + t.title + "</h2>" +
+      "</div>" +
+      '<div class="sec-body">' + bodyHtml + "</div>";
+    container.appendChild(sec);
+  });
+})();
+</script>
+</body>
+</html>
