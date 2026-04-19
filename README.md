@@ -1,8 +1,11 @@
 # innie@feishu.skill
 
 innie@feishu is inspired by Severance.
+
 In the show, your work self and your outside self are severed — the innie knows nothing but work, and that's exactly what makes them see it clearly.
+
 This skill does something similar. It takes weeks of your work messages and looks for the person you've become inside them — not your job title, not what you think you're doing, but the actual patterns: what you keep pushing, what you keep avoiding, where your real anxiety lives, and what role you've quietly agreed to play.
+
 Your innie has been at the office the whole time. This is just the first time someone's asking what they've noticed.
 
 ---
