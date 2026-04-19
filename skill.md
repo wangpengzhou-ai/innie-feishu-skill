@@ -110,29 +110,28 @@ P2P chat partners are further anonymized to `p2p_1`, `p2p_2` … labels.
 python3 $SKILL_DIR/summarize.py \
   --input   messages_organized.json \
   --context context.md \
-  --stats   stats.json
+  --stats   stats.json \
+  --enrich
 ```
 
 Outputs:
-- `context.md` — word frequency + all messages grouped by day and by top chat
+- `context.md` — word frequency + all messages grouped by day and by top chat, with inserted summaries
 - `stats.json` — basic stats for render.py
 
-No API key required. The agent reads `context.md` directly in the next step.
+No API key required. `summarize.py --enrich` writes raw evidence first, then runs `enrich_context.py` to add 2–4 sentence summaries for each day and each Top-10 chat.
 
 ---
 
-### 6 · Write daily & chat summaries (agent LLM step)
+### 6 · Review or improve the inserted summaries (agent step)
 
-Read `context.md`. It contains three sections:
-- `## Word Frequency` — word frequency table
-- `## Daily Message Records` — raw messages grouped by date
-- `## Top 10 Conversations` — raw messages for the 10 most active chats
+Read `context.md`. Each date section and each Top-10 chat section now already has a `> Summary:` block inserted by `enrich_context.py`.
 
-For each date section and each Top-10 chat section, write a 2–4 sentence summary
-inserted right after the section heading (before the raw messages). Cover: what was
-being worked on, key decisions or blockers, and emotional tone. Keep it tight.
+You should:
+- spot-check the summaries against the raw messages
+- tighten any summary that sounds generic, misses a blocker/decision, or gets the tone wrong
+- keep each summary to 2–4 sentences and avoid quoting raw text
 
-Write the enriched `context.md` back to disk.
+The goal is not to write them from scratch every time, but to upgrade any weak heuristic summary before the final analysis.
 
 ---
 
@@ -149,7 +148,7 @@ Output exactly 3 truths in the JSON format from `analysis.md`. Save to `truths.j
 
 ---
 
-### 7 · Render share card
+### 8 · Render share card
 
 ```bash
 python3 $SKILL_DIR/render.py \
@@ -162,41 +161,15 @@ python3 $SKILL_DIR/render.py \
 
 ---
 
-### 8 · Export to PNG
-
-Start a local HTTP server (required so Google Fonts load — `file://` blocks them):
+### 9 · Export to PNG
 
 ```bash
-# From the directory containing share-card.html
-python3 -m http.server 7788 &
-SERVER_PID=$!
+python3 $SKILL_DIR/export_png.py \
+  --html share-card.html \
+  --png  share-card.png
 ```
 
-Install and run Puppeteer:
-
-```bash
-cd /tmp && mkdir -p ss_proj && cd ss_proj && npm init -y && npm install puppeteer
-
-node --input-type=module <<'EOF'
-import puppeteer from '/tmp/ss_proj/node_modules/puppeteer/lib/esm/puppeteer/puppeteer.js';
-const b = await puppeteer.launch({
-  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  args: ['--no-sandbox']
-});
-const p = await b.newPage();
-await p.setViewport({width: 760, height: 900, deviceScaleFactor: 2});
-await p.goto('http://localhost:7788/share-card.html', {waitUntil: 'domcontentloaded'});
-await new Promise(r => setTimeout(r, 2000));
-await p.screenshot({path: 'share-card.png', fullPage: true});
-await b.close();
-console.log('Done: share-card.png');
-EOF
-
-kill $SERVER_PID
-```
-
-> Use `domcontentloaded` (not `networkidle2`) — Google Fonts may time out in restricted environments.
-> If the share card is in a subdirectory, use `http://localhost:7788/subdir/share-card.html`.
+This script starts a temporary local HTTP server in the correct directory, installs Puppeteer if needed, waits for fonts to load, and writes the screenshot to the exact PNG path you requested.
 
 ---
 
@@ -206,7 +179,7 @@ kill $SERVER_PID
 |------|-------------|
 | `messages_raw.json` | Full message cache — reusable across runs |
 | `messages_organized.json` | Filtered & grouped messages |
-| `context.md` | Agent analysis input (word freq + daily + top-chat messages) |
+| `context.md` | Agent analysis input (word freq + daily + top-chat messages + inserted summaries) |
 | `stats.json` | Basic stats for render.py |
 | `truths.json` | 3 hidden truths (machine-readable JSON) |
 | `share-card.html` | Insight share card with 3 truths |

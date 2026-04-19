@@ -1,6 +1,9 @@
 # Generated outputs — never commit these
 messages_raw.json
+messages_masked.json
 messages_organized.json
+context.md
+stats.json
 analysis_stats.json
 truths.json
 /heatmap.html

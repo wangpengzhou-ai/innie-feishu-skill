@@ -31,20 +31,24 @@ Feishu messages
      ▼ organize.py       group by chat · filter noise · anonymize p2p
      │
      ▼ summarize.py      word freq + daily messages + top-10 chat messages
-     │                   → context.md (analysis input) + stats.json (render input)
+     │                   → context.md + stats.json
+     │
+     ▼ enrich_context.py insert daily/chat summaries into context.md
      │
      ▼ LLM               3 hidden truths via structured prompt (prompts/analysis.md)
      │
-     ▼ render.py         share-card.html + share-card.png
+     ▼ render.py         share-card.html
+     │
+     ▼ export_png.py     share-card.png
 ```
 
 ### The summarize approach
 
-Instead of feeding raw stats to the LLM, `summarize.py` first builds a structured context:
+Instead of feeding raw stats to the LLM, `summarize.py` first builds a structured context, and `enrich_context.py` inserts compact summaries for each workday and each top conversation:
 
 - **Word frequency** (overall + per week) — reveals what topics truly dominated each period
 - **Daily message records** — all messages grouped by workday, with chitchat filtered out
-- **Top-10 chat summaries** — compressed view of the most active conversations, with full message history
+- **Top-10 conversations** — the most active chats, each with an inserted summary + full message history
 
 This gives the final LLM a narrative spine to reason from, while preserving access to the raw signal for nuanced interpretation.
 
@@ -80,6 +84,8 @@ pip install jieba
 pip install lac  # optional: enables NER for better PII masking
 ```
 
+Node.js and npm are also required for the PNG export helper (`export_png.py` installs Puppeteer automatically the first time it runs).
+
 ---
 
 ## How to run
@@ -106,6 +112,21 @@ cp "$SKILL_DIR/skill.md" .claude/commands/feishu-innie.md
 Then in Claude Code:
 ```
 /feishu-innie
+```
+
+### Manual pipeline
+
+```bash
+export SKILL_DIR="$PWD/innie-feishu-skill"
+export SENDER_ID="$(lark-cli auth status | python3 -c 'import json,sys; print(json.load(sys.stdin)[\"userOpenId\"])')"
+
+python3 "$SKILL_DIR/fetch.py" --sender "$SENDER_ID" --weeks 6 --target 1000 --output messages_raw.json
+python3 "$SKILL_DIR/mask.py" --input messages_raw.json --output messages_masked.json --no-lac
+python3 "$SKILL_DIR/organize.py" --input messages_masked.json --output messages_organized.json
+python3 "$SKILL_DIR/summarize.py" --input messages_organized.json --context context.md --stats stats.json --enrich
+# Then ask your agent to read prompts/analysis.md + context.md and write truths.json
+python3 "$SKILL_DIR/render.py" --stats stats.json --truths truths.json --card share-card.html
+python3 "$SKILL_DIR/export_png.py" --html share-card.html --png share-card.png
 ```
 
 ---
@@ -151,7 +172,7 @@ Add npm's global bin directory to your `PATH`: run `npm bin -g` to find the path
 | `messages_raw.json` | Full cache — reuse to skip re-fetching |
 | `messages_masked.json` | PII-masked — recommended for all downstream steps |
 | `messages_organized.json` | Filtered, grouped, anonymized |
-| `context.md` | Structured LLM analysis context |
+| `context.md` | Structured LLM analysis context with inserted daily/chat summaries |
 | `stats.json` | Basic stats for render.py |
 | `truths.json` | 3 truths in machine-readable form |
 | `share-card.html` | Shareable insight card |
@@ -165,6 +186,7 @@ Add npm's global bin directory to your `PATH`: run `npm bin -g` to find the path
 - Node.js 18+ with [`@larksuite/cli`](https://github.com/larksuite/cli) authenticated with `im` scopes
 - `pip install jieba`
 - `pip install lac` — optional, for better NER in `mask.py`
+- npm (for `export_png.py`, which installs Puppeteer on demand)
 
 ---
 

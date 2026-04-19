@@ -2,7 +2,7 @@
 """
 innie@feishu.skill — Step 4: Summarize
 Builds the LLM analysis context from organized messages.
-No external API key required — the executing agent (Claude) does the analysis.
+Optionally enriches each day/top-chat section with heuristic summaries.
 
 Outputs:
   context.md  — structured context for the agent to analyze
@@ -12,9 +12,11 @@ Usage:
     python3 summarize.py
     python3 summarize.py --input messages_organized.json \
                          --context context.md --stats stats.json
+    python3 summarize.py --input messages_organized.json \
+                         --context context.md --stats stats.json --enrich
 """
 
-import json, os, re, sys
+import json, re, sys
 from collections import Counter, defaultdict
 from datetime import datetime
 
@@ -194,7 +196,7 @@ def build_stats(msgs: list[dict], organized: dict) -> dict:
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-def summarize(input_path: str, context_path: str, stats_path: str):
+def summarize(input_path: str, context_path: str, stats_path: str, enrich: bool = False):
     with open(input_path, encoding="utf-8") as f:
         organized = json.load(f)
 
@@ -215,6 +217,12 @@ def summarize(input_path: str, context_path: str, stats_path: str):
         f.write(context)
     print(f"Context → {context_path} ({len(context)} chars)", file=sys.stderr)
 
+    if enrich:
+        from enrich_context import enrich as enrich_context_file
+
+        print("Adding heuristic summaries...", file=sys.stderr)
+        enrich_context_file(input_path, context_path)
+
     stats = build_stats(msgs, organized)
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
@@ -229,8 +237,10 @@ def main():
     parser.add_argument("--input",   default="messages_organized.json")
     parser.add_argument("--context", default="context.md")
     parser.add_argument("--stats",   default="stats.json")
+    parser.add_argument("--enrich", action="store_true",
+                        help="Also add heuristic daily/top-chat summaries into context.md")
     args = parser.parse_args()
-    summarize(args.input, args.context, args.stats)
+    summarize(args.input, args.context, args.stats, enrich=args.enrich)
 
 
 if __name__ == "__main__":
