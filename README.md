@@ -14,6 +14,8 @@ Your innie has been at the office the whole time. This is just the first time so
 
 Produces:
 - A **shareable insight card** with 3 behavioral truths (HTML + PNG)
+![Uploading image.png…]()
+
 
 Works as an agent skill — give `skill.md` to any LLM agent with shell access (Claude Code, Cursor, Windsurf, a custom API agent, …).
 
