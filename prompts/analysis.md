@@ -75,7 +75,7 @@ Output the following JSON directly, with nothing else:
   {
     "num": "01",
     "title": "<one-sentence judgment>",
-    "body": "<full three-layer content, continuous prose, no section labels. Use \\n\\n for paragraph breaks>"
+    "body": "<full three-layer content, continuous prose, no section labels，禁止出现现象描述/ 深度解析/ 扎心真相这类标签. Use \\n\\n for paragraph breaks>"
   },
   {
     "num": "02",
