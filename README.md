@@ -76,14 +76,8 @@ export SKILL_DIR="$PWD/innie-feishu-skill"
 ### 3. Install Python dependencies
 
 ```bash
-pip install jieba openai
+pip install jieba
 pip install lac  # optional: enables NER for better PII masking
-```
-
-### 4. Set your OpenRouter API key
-
-```bash
-export OPENROUTER_API_KEY="sk-or-v1-..."
 ```
 
 ---
@@ -169,9 +163,8 @@ Add npm's global bin directory to your `PATH`: run `npm bin -g` to find the path
 
 - Python 3.10+
 - Node.js 18+ with [`@larksuite/cli`](https://github.com/larksuite/cli) authenticated with `im` scopes
-- `pip install jieba openai`
+- `pip install jieba`
 - `pip install lac` — optional, for better NER in `mask.py`
-- OpenRouter API key for `summarize.py`
 
 ---
 
