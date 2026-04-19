@@ -66,7 +66,7 @@ lark-cli auth login --domain im
 ### 2. Clone this repo
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/innie-feishu-skill.git
+git clone https://github.com/wangpengzhou-ai/innie-feishu-skill.git
 export SKILL_DIR="$PWD/innie-feishu-skill"
 ```
 
